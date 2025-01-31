@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/contacts";
+const API_URL =
+  "https://contact-management-api-production.up.railway.app/contacts";
 
 export async function saveContact(contact) {
   return await axios.post(API_URL, contact);

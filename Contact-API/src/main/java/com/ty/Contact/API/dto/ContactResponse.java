@@ -1,11 +1,4 @@
-package com.ty.Contact.API.entity;
-
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
-
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
+package com.ty.Contact.API.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,10 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(NON_NULL)
-@Document(collection = "contacts") 
-public class Contact {
-    @Id
+public class ContactResponse {
     private String id;
     private String name;
     private String email;

@@ -1,82 +1,86 @@
 package com.ty.Contact.API.service;
 
-import static com.ty.Contact.API.constant.Constant.PHOTO_DIRECTORY;
+import java.io.IOException;
+import java.io.InputStream;
 
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Optional;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.gridfs.GridFsOperations;
+import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.model.GridFSFile;
 import com.ty.Contact.API.entity.Contact;
 import com.ty.Contact.API.repository.ContactRepository;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-@Transactional(rollbackOn = Exception.class)
 @RequiredArgsConstructor
-public class ContactService<fileExtension> {
+public class ContactService {
 
-	@Autowired
-	private ContactRepository contactRepository;
+    @Autowired
+    private ContactRepository contactRepository;
 
-	public Page<Contact> getAllContacts(int page, int size) {
-		return contactRepository.findAll(PageRequest.of(page, size, Sort.by("name")));
-	}
+    @Autowired
+    private GridFsTemplate gridFsTemplate;
 
-	public Contact getContact(String id) {
-		return contactRepository.findById(id).orElseThrow(() -> new RuntimeException("Contact Not Found"));
-	}
+    @Autowired
+    private GridFSBucket gridFSBucket;
 
-	public Contact createContact(Contact contact) {
-		return contactRepository.save(contact);
-	}
+    public Page<Contact> getAllContacts(int page, int size) {
+        return contactRepository.findAll(PageRequest.of(page, size, Sort.by("name")));
+    }
 
-	public void deleteContact(String id) { 
+    public Contact getContact(String id) {
+        return contactRepository.findById(id).orElseThrow(() -> new RuntimeException("Contact Not Found"));
+    }
+
+    public Contact createContact(Contact contact) {
+        return contactRepository.save(contact);
+    }
+
+    public void deleteContact(String id) {
         contactRepository.deleteById(id);
     }
 
-	public String uploadPhoto(String id, MultipartFile file) {
-		log.info("Saving picture for user ID : {}", id);
-		Contact contact = getContact(id);
-		String photoUrl = photoFunction.apply(id, file);
-		contact.setPhotoUrl(photoUrl);
-		contactRepository.save(contact);
-		return photoUrl;
-	}
+    public String uploadPhoto(String id, MultipartFile file) throws IOException {
+        log.info("Saving picture for user ID : {}", id);
+        Contact contact = getContact(id);
 
-	private final Function<String, String> fileExtension = filename -> Optional.of(filename)
-			.filter(name -> name.contains(".")).map(name -> "." + name.substring(filename.lastIndexOf(".") + 1))
-			.orElse(".png");
+        // Store image in GridFS
+        ObjectId fileId = gridFsTemplate.store(file.getInputStream(), file.getOriginalFilename(), file.getContentType());
 
-	private final BiFunction<String, MultipartFile, String> photoFunction = (id, image) -> {
-		String filename = id + fileExtension.apply(image.getOriginalFilename());
-		try {
-			Path fileStorageLocation = Paths.get(PHOTO_DIRECTORY).toAbsolutePath().normalize();
-			if (!Files.exists(fileStorageLocation)) {
-				Files.createDirectories(fileStorageLocation);
-			}
-			Files.copy(image.getInputStream(), fileStorageLocation.resolve(filename), REPLACE_EXISTING);
-			return ServletUriComponentsBuilder
-                    .fromCurrentContextPath()
-                    .path("/contacts/image/" + filename).toUriString();
-		} catch (Exception exception) {
-			throw new RuntimeException("Unable to save image");
-		}
-	};
+        // Store reference in Contact entity
+        String photoUrl = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/contacts/image/" + fileId.toHexString()) // URL to retrieve image
+                .toUriString();
+        contact.setPhotoUrl(photoUrl);
+        contactRepository.save(contact);
+
+        return photoUrl;
+    }
+
+    public InputStream getPhoto(String fileId) throws IOException {
+        GridFSFile file = gridFsTemplate.findOne(
+                new org.springframework.data.mongodb.core.query.Query(
+                        org.springframework.data.mongodb.core.query.Criteria.where("_id").is(fileId)
+                )
+        );
+
+        if (file == null) {
+            throw new RuntimeException("Image not found with ID: " + fileId);
+        }
+
+        return gridFSBucket.openDownloadStream(file.getObjectId());
+    }
 }

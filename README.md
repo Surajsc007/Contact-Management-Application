@@ -20,7 +20,7 @@ The Contact Manager App simplifies contact management through an intuitive web i
 
 ## Application Interface
 **Contact Page:**
-![image](https://github.com/user-attachments/assets/6f3f75a0-711a-44b4-964a-850c82c53c4a)
+![image](https://github.com/user-attachments/assets/e9ddb069-04f4-4bf7-8d6e-e44fe519f40a)
 
 **Save New Contact:**
 ![image](https://github.com/user-attachments/assets/4aeee7b3-9c4f-4e7d-a2dc-03189e8886a4)

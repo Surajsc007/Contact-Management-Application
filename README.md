@@ -18,7 +18,7 @@ The Contact Manager App simplifies contact management through an intuitive web i
 * **RESTful API:** Backend exposes REST endpoints for seamless communication with the frontend.
 * **Data Persistence:** Contact data is stored persistently in a MongoDB database.
 
-## Application Interfaces
+## Application Interface
 **Contact Page:**
 ![image](https://github.com/user-attachments/assets/8b972324-db94-465c-8354-a7c03b2e6dea)
 

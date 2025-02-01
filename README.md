@@ -4,7 +4,7 @@ The Contact Manager App simplifies contact management through an intuitive web i
 ## Technologies Used
 * **Frontend:** React, Axios
 * **Backend:** Spring Boot
-* **Backend-Dependencies:** BSpring Web, Spring Data JPA, Lombok, Spring Boot DevTools, MongoDB Driver
+* **Backend-Dependencies:** Spring Web, Spring Data JPA, Lombok, Spring Boot DevTools, MongoDB Driver
 * **Database:** MongoDB
 * **Other:** Maven/Gradle (build tool), Git (version control)
 

@@ -19,11 +19,11 @@ The Contact Manager App simplifies contact management through an intuitive web i
 * **Data Persistence:** Contact data is stored persistently in a MongoDB database.
 
 ## Application Interfaces
-**Contact Page**
+**Contact Page:**
 ![image](https://github.com/user-attachments/assets/8b972324-db94-465c-8354-a7c03b2e6dea)
 
-**Save New Contact**
+**Save New Contact:**
 ![image](https://github.com/user-attachments/assets/4aeee7b3-9c4f-4e7d-a2dc-03189e8886a4)
 
-**Update Existing Contact**
+**Update Existing Contact:**
 ![image](https://github.com/user-attachments/assets/5cde2c20-fabb-4de5-ac8d-1b4c3f386822)
